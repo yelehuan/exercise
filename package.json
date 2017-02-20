@@ -27,6 +27,21 @@
     "mocha": "^3.2.0",
     "should": "^11.2.0",
     "superagent": "^3.3.2",
-    "utility": "^1.9.0"
+    "utility": "^1.9.0",
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-cssmin": "^1.0.2",
+    "grunt-contrib-htmlmin": "^2.1.0",
+    "grunt-contrib-jade": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-requirejs": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-inline": "^0.3.6",
+    "grunt-strip": "^0.2.1",
+    "html-minifier": "^3.2.3",
+    "jade": "^1.11.0",
+    "jstransformer-clean-css": "^1.1.0",
+    "jstransformer-uglify-js": "^1.1.1"
   }
 }
