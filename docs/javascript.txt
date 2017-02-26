@@ -1,0 +1,161 @@
+常见的错误类型：
+	1. 类型转换错误
+	2. 数据类型错误
+	3. 通信错误
+调试技术
+	1. 将消息记录到控制台
+	2. 将消息记录到当前页面
+
+Ajax 与 JSon (像服务器请求额外的数据而无需卸载页面)
+	1. XHR 对象
+		var xhr = new XMLHttpRequest();
+		xhr.onreadyStatechange = function(){
+			if(xhr.readyState == 4){
+				if((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
+					alert(xhr.responseText);
+				}else{
+					alert('Request was unsuccessful: ' + xhr.status);
+				}
+			}
+		};
+		xhr.open('get', 'example.php', false);
+		xhr.send(null);
+		只能向同一个域中使用相同端口和协议的URL发送请求，否则会引发安全错误
+
+	2. XHR对象的属性
+		readyState:　请求／响应过程中的当前活动阶段
+			0：未初始化。尚未调用open()方法
+			1：启动。已经调用open()方法，但是没有调用send()方法
+			2：发送。已经调用send()方法，但是尚未接收到响应
+			3：接收。已经接受到部分响应数据
+			4：完成。已经接受到全部响应数据，而且已经可以在客户端使用了。
+			只要readyState属性的值由一个值变成另一个值时，都会触发一次readyStatechange事件。
+		responseText: 作为响应主体被返回的文本。
+		responseXML：  如果响应内容类型是 'text/xml' 或者 'application/xml',这个属性将会保存包含着响应数据的 XML DOM文档
+		status: 响应Http状态
+		statusText: http状态说明
+
+	3. HTTP头部信息
+		Accept: 浏览器能够处理的内容类型。
+		Accept-Charset: 浏览器能够显示的字符集。
+		Accept-Encoding: 浏览器能够处理的压缩编码。
+		Accept-Language: 浏览器当前设置的语言。
+		Connection: 浏览器与服务器之间连接的类型。
+		Cookie: 当前页面设置的任何Cookie.
+		Host: 发出请求的页面所在的域。
+		Referer: 发出请求的页面的URI.
+		User-Agent: 浏览器的用户代理字符串。
+
+	4. GET请求
+		使用GET请求经常会发送一个错误，就是查询字符串的格式有问题。查询字符串中每个参数的名称和值必须使用encodeURIComponent()进行编码，然后才能放到URL的末尾，而且所有名-值对必须有和号（&）分隔
+
+		function addURLParam(url, name, value){
+			url += (url.indexOf('?') == -1) ? '?' : '&';
+			url += encodeURIComponent(name) + '=' + encodeURIComponent(value);
+			return url;
+		}
+
+		url = addURLParam(url, 'name', 'yelehuan');
+		url = addURLParam(url, 'age', '25');
+
+	5. POST请求
+		通常用于向服务器发送应该被保存的数据。POST请求应该把数据作为请求的主体提交。POST请求的主体可以包含非常多的数据，而且格式不限。
+
+	6. 安全（Ajax安全问题）
+		为确保通过XHR访问的URL安全，通行的做法就是验证发送请求者是否有权限访问响应的资源。有以下几种方式可供选择：
+			要求以SSL连接来访问可以通过XHR请求的资源。
+			要求每一次请求都要附带经过相应算法计算得到的验证码。
+
+	7. 跨域请求
+		跨域请求解决方案：
+		XDomainRequest对象（IE8中引入）
+			cookie不会随请求发送，也不会随响应返回。
+			只能设置请求头部信息中的Content-Type字段。
+			不能访问响应头部信息。
+			只支持GET和POST请求。
+			XDR只能访问Access-Control-Allow-Origin头部字段设置为*的资源
+
+			var xdr = new XDomainRequest();
+			xdr.onload = function(){
+				alert(xdr.responseText);
+			};
+
+			xdr.onerror = function(){
+				alert('An error occurred.');
+			};
+
+			xdr.open('get', 'http://www.wps.com');
+			xdr.send(null);
+
+		跨域XHR(Firefox 3中)
+			与IE的方案类似，W3C的‘跨站点请求访问控制规范’ 要求远程资源有权决定自身是否可以被远程浏览器访问。这就需要通过设置Access-Control-Allow-Origin头部，并制定哪个域可以访问该资源来实现。例如
+			 Access-Control-Allow-Origin: http://www.wps.com
+			 Access-Control-Allow-Origin: *
+			与IE中的XDR对象不同，跨域XHR对象允许访问status和statusText属性，也支持同步请求。不过，为了确保安全，跨域XHR也存在一些额外的限制。
+				不能使用setRequestHeader()设置自定义头部。
+				不会发送也不会接受cookie.
+				getAllResponseHeaders()方法只能返回空字符串
+
+	8. JSON
+		要注意的是，虽然javascript不要求给对象的属性加引号，但未加引号的属性在JSON中则被视为一个语法错误。
+		//eval将JSON结构转化成javascript对象
+		var people = eval(jsonText);
+		alert(people[0].name);
+
+		var object = eval("(" + jsontext + ")");
+
+		JSON库中有个全局的JSON对象，有两个方法： parse() 和 stringigy()
+		parse() 与 eval()不同的是，这里不需要为传入的文本加圆括号
+		var jsonText = "{\"name\":\"yelehuan\",\"age\":29,\"programmer\":true}";
+		var object = JSON.parse(jsonText, function(key, value){
+			switch(key){
+				case "age":
+					return value +　1;
+				case "programmer":
+					return undefined;
+				default:
+					return value;
+			}
+		});
+
+		alert(object.age);
+		alert(object.programmer);
+
+		可以发送一个Ajax请求取得数据，然后在客户端使用下列代码生成相应的<ul/>元素
+		var xhr = createXHR();
+		xhr.onreadyStatuschange = function(){
+			if(readState == 4){
+				if(xhr.status >= 200 && xhr.status < 300 ||　xhr.status == 304){
+					var contacts = JSON.parse(xhr.responseText);
+					var list = document.getElementById('contacts');
+					for(var i=0, len=contacts.length; i < len; ++i){
+						var li = document.createElement('li');
+						li.innerHTML = "<a href=\"mailto:" + contacts[i].email + "\">" + contacts[i].name + "</a>";
+						list.appendChild(li);
+					}
+				}
+			}
+		};
+		xhr.open('get', 'addressbook.php', true);
+		xhr.send(null);
+
+
+		JSON同样也是向服务器发送数据的流行格式，发送数据时，一般会把JSON放到POST请求主体中，而JSON对象的stringify()方法则正是为此而设计的。
+		var contact = {
+			"name": "yelehuan",
+			"email": "ye_lehuan@163.com"
+		};
+
+		var jsonText = JSON.stringify(contact);
+		xhr.open('post', 'addcontact.php', true);
+		xhr.send(jsonText);
+
+		var jsonText = JSON.stringify([new Function()], function(key, value){
+			if(value, instanceof Function){
+				return '(function)';
+			}else{
+				return value;
+			}
+		});
+
+		alert(jsonText); //'[(function)]'
